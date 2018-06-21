@@ -13,10 +13,11 @@ type File struct {
 	size    int64
 }
 
-func (f File) visit(operation int, ref Node) {
+func (f File) visit(jobs chan<- func(), operation int, ref Node) {
 	if operation == REMOVE {
-		f.remove()
+		jobs <- func() { f.remove() }
 		return
+
 	}
 
 	t := f.modTime
@@ -27,25 +28,27 @@ func (f File) visit(operation int, ref Node) {
 		currPath := f.getPath()
 		refPath := ref.getPath()
 
-		source, err := os.Open(currPath)
-		if err != nil {
-			log.Fatal(err)
-		}
+		jobs <- func() {
+			source, err := os.Open(currPath)
+			if err != nil {
+				log.Fatal(err)
+			}
 
-		defer source.Close()
+			defer source.Close()
 
-		target, err := os.Create(refPath)
-		if err != nil {
-			log.Fatal(err)
-		}
+			target, err := os.Create(refPath)
+			if err != nil {
+				log.Fatal(err)
+			}
 
-		defer target.Close()
+			defer target.Close()
 
-		//Move file to reference file location
-		//err := os.Rename(currPath, refPath)
-		_, err = io.Copy(target, source)
-		if err != nil {
-			log.Fatal(err)
+			//Move file to reference file location
+			//err := os.Rename(currPath, refPath)
+			_, err = io.Copy(target, source)
+			if err != nil {
+				log.Fatal(err)
+			}
 		}
 	}
 }

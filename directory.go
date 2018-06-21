@@ -13,7 +13,7 @@ type Directory struct {
 	name    string
 }
 
-func (d Directory) visit(operation int, ref Node) {
+func (d Directory) visit(jobs chan<- func(), operation int, ref Node) {
 
 	if operation == REMOVE {
 		d.remove()
@@ -44,18 +44,19 @@ func (d Directory) visit(operation int, ref Node) {
 		node := CreateNode(d.path, file)
 
 		if n, present := refMap[node.getName()]; present {
-			node.visit(operation, n)
+			node.visit(jobs, operation, n)
 			delete(refMap, node.getName())
 
 		} else {
-			node.visit(operation, MakeEmptyNode(ref.getPath(), node.getName()))
+			node.visit(jobs, operation,
+				MakeEmptyNode(ref.getPath(), node.getName()))
 		}
 	}
 
 	//Remove all files that still exist in refMap since they won't get replaced
 	if operation == SYNC {
 		for _, node := range refMap {
-			node.visit(REMOVE, EmptyNode{})
+			node.visit(jobs, REMOVE, EmptyNode{})
 		}
 	}
 }

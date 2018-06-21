@@ -9,7 +9,7 @@ type FileInfo = os.FileInfo
 type Time = time.Time
 
 type Node interface {
-	visit(operation int, reference Node)
+	visit(jobs chan<- func(), operation int, reference Node)
 	remove()
 
 	getModificationTime() Time
@@ -22,7 +22,7 @@ type EmptyNode struct {
 	name string
 }
 
-func (n EmptyNode) visit(operation int, reference Node) {}
+func (n EmptyNode) visit(jobs chan<- func(), operation int, reference Node) {}
 
 func (n EmptyNode) remove() {}
 

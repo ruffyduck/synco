@@ -4,6 +4,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"path"
 )
 
 type Directory struct {
@@ -19,6 +20,8 @@ func (d Directory) visit(operation int, ref Node) {
 		return
 	}
 
+	os.MkdirAll(ref.getPath(), os.ModePerm)
+
 	//Write all existing files into in reference node into a map
 	refMap := make(map[string]Node)
 	files, err := ioutil.ReadDir(ref.getPath())
@@ -32,7 +35,7 @@ func (d Directory) visit(operation int, ref Node) {
 	}
 
 	//Read current files and iterate through them
-	files, err = ioutil.ReadDir(ref.getPath())
+	files, err = ioutil.ReadDir(d.path)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -79,7 +82,6 @@ func (d Directory) getName() string {
 func CreateNode(path string, info FileInfo) Node {
 	if info.IsDir() {
 		return MakeDirectory(path, info)
-
 	} else {
 		return MakeFile(path, info)
 	}
@@ -94,5 +96,13 @@ func MakeDirectory(path string, info FileInfo) Directory {
 		info.ModTime(),
 		CreatePath(path, info.Name()),
 		info.Name(),
+	}
+}
+
+func MakeRootDirectory(dirPath string) Directory {
+	return Directory{
+		Time{},
+		dirPath,
+		path.Base(dirPath),
 	}
 }

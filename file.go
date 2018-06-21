@@ -1,6 +1,7 @@
 package main
 
 import (
+	"io"
 	"log"
 	"os"
 )
@@ -13,26 +14,39 @@ type File struct {
 }
 
 func (f File) visit(operation int, ref Node) {
-	switch operation {
-	case UPDATE:
-	case MOVE:
-	case SYNC:
-		t := f.modTime
-		b := (operation != UPDATE) ||
-			(t.After(ref.getModificationTime()))
-
-		if b {
-			path := f.getPath()
-			refPath := ref.getPath()
-
-			//Move file to reference file location
-			err := os.Rename(path, refPath)
-			if err != nil {
-				log.Fatal(err)
-			}
-		}
-	case REMOVE:
+	if operation == REMOVE {
 		f.remove()
+		return
+	}
+
+	t := f.modTime
+	b := (operation != UPDATE) ||
+		(t.After(ref.getModificationTime()))
+
+	if b {
+		currPath := f.getPath()
+		refPath := ref.getPath()
+
+		source, err := os.Open(currPath)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		defer source.Close()
+
+		target, err := os.Create(refPath)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		defer target.Close()
+
+		//Move file to reference file location
+		//err := os.Rename(currPath, refPath)
+		_, err = io.Copy(target, source)
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 }
 

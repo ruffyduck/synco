@@ -14,7 +14,7 @@ func main() {
 	source := flag.String("source", "", "Synchronisation source folder")
 	target := flag.String("target", "", "Synchronisation target folder")
 	operation := flag.String("operation", "Update", "Operation type:"+
-		"Update, Move, Synchronize, Remove")
+		"Update, Copy, Synchronize")
 
 	flag.Parse()
 

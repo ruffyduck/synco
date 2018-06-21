@@ -17,7 +17,6 @@ func (f File) visit(jobs chan<- func(), operation int, ref Node) {
 	if operation == REMOVE {
 		jobs <- func() { f.remove() }
 		return
-
 	}
 
 	t := f.modTime

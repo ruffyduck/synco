@@ -6,7 +6,7 @@ import (
 
 const (
 	UPDATE = iota
-	MOVE
+	COPY
 	SYNC
 	REMOVE
 )
@@ -24,16 +24,13 @@ func GetOperationType(name string) int {
 		return UPDATE
 	}
 
-	if strings.EqualFold(n, "MOVE") {
-		return MOVE
+	if strings.EqualFold(n, "COPY") {
+		return COPY
 	}
 
 	if strings.EqualFold(n, "SYNC") {
 		return SYNC
 
-	}
-	if strings.EqualFold(n, "REMOVE") {
-		return REMOVE
 	}
 
 	panic("Given name is not a valid operation")

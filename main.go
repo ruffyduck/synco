@@ -25,8 +25,7 @@ func main() {
 			log.Fatal(err)
 		}
 
-		code := string(data)
-		if err := json.Unmarshal([]byte(code), &operations); err != nil {
+		if err := json.Unmarshal(data, &operations); err != nil {
 			log.Fatal(err)
 		}
 

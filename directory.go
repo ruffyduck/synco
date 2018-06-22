@@ -7,13 +7,13 @@ import (
 	"path"
 )
 
-type Directory struct {
+type directory struct {
 	modTime Time
 	path    string
 	name    string
 }
 
-func (d Directory) visit(jobs chan<- func(), operation int, ref Node) {
+func (d directory) visit(jobs chan<- func(), operation int, ref node) {
 
 	if operation == REMOVE {
 		d.remove()
@@ -22,15 +22,15 @@ func (d Directory) visit(jobs chan<- func(), operation int, ref Node) {
 
 	os.MkdirAll(ref.getPath(), os.ModePerm)
 
-	//Write all existing files into in reference node into a map
-	refMap := make(map[string]Node)
+	//Write all existing files in reference node into a map
+	refMap := make(map[string]node)
 	files, err := ioutil.ReadDir(ref.getPath())
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	for _, file := range files {
-		node := CreateNode(ref.getPath(), file)
+		node := createNode(ref.getPath(), file)
 		refMap[node.getName()] = node
 	}
 
@@ -41,7 +41,7 @@ func (d Directory) visit(jobs chan<- func(), operation int, ref Node) {
 	}
 
 	for _, file := range files {
-		node := CreateNode(d.path, file)
+		node := createNode(d.path, file)
 
 		if n, present := refMap[node.getName()]; present {
 			node.visit(jobs, operation, n)
@@ -49,59 +49,59 @@ func (d Directory) visit(jobs chan<- func(), operation int, ref Node) {
 
 		} else {
 			node.visit(jobs, operation,
-				MakeEmptyNode(ref.getPath(), node.getName()))
+				makeEmptyNode(ref.getPath(), node.getName()))
 		}
 	}
 
 	//Remove all files that still exist in refMap since they won't get replaced
 	if operation == SYNC {
 		for _, node := range refMap {
-			node.visit(jobs, REMOVE, EmptyNode{})
+			node.visit(jobs, REMOVE, emptyNode{})
 		}
 	}
 }
 
-func (d Directory) remove() {
+func (d directory) remove() {
 	err := os.RemoveAll(d.path)
 	if err != nil {
 		log.Fatal(err)
 	}
 }
 
-func (d Directory) getModificationTime() Time {
+func (d directory) getModificationTime() Time {
 	return d.modTime
 }
 
-func (d Directory) getPath() string {
+func (d directory) getPath() string {
 	return d.path
 }
 
-func (d Directory) getName() string {
+func (d directory) getName() string {
 	return d.name
 }
 
-func CreateNode(path string, info FileInfo) Node {
+func createNode(path string, info FileInfo) node {
 	if info.IsDir() {
-		return MakeDirectory(path, info)
-	} else {
-		return MakeFile(path, info)
+		return makeDirectory(path, info)
 	}
+
+	return makeFile(path, info)
 }
 
-func MakeDirectory(path string, info FileInfo) Directory {
+func makeDirectory(path string, info FileInfo) directory {
 	if !info.IsDir() {
 		log.Fatal("Given file info doesn't belong to a directory")
 	}
 
-	return Directory{
+	return directory{
 		info.ModTime(),
 		CreatePath(path, info.Name()),
 		info.Name(),
 	}
 }
 
-func MakeRootDirectory(dirPath string) Directory {
-	return Directory{
+func makeRootDirectory(dirPath string) directory {
+	return directory{
 		Time{},
 		dirPath,
 		path.Base(dirPath),

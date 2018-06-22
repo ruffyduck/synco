@@ -5,11 +5,14 @@ import (
 	"time"
 )
 
+//FileInfo os.FileInfo alias
 type FileInfo = os.FileInfo
+
+//Time time.Time alias
 type Time = time.Time
 
-type Node interface {
-	visit(jobs chan<- func(), operation int, reference Node)
+type node interface {
+	visit(jobs chan<- func(), operation int, reference node)
 	remove()
 
 	getModificationTime() Time
@@ -17,29 +20,29 @@ type Node interface {
 	getName() string
 }
 
-type EmptyNode struct {
+type emptyNode struct {
 	path string
 	name string
 }
 
-func (n EmptyNode) visit(jobs chan<- func(), operation int, reference Node) {}
+func (n emptyNode) visit(jobs chan<- func(), operation int, reference node) {}
 
-func (n EmptyNode) remove() {}
+func (n emptyNode) remove() {}
 
-func (n EmptyNode) getModificationTime() Time {
-	return time.Time{}
+func (n emptyNode) getModificationTime() Time {
+	return Time{}
 }
 
-func (n EmptyNode) getPath() string {
+func (n emptyNode) getPath() string {
 	return n.path
 }
 
-func (n EmptyNode) getName() string {
+func (n emptyNode) getName() string {
 	return n.name
 }
 
-func MakeEmptyNode(path string, name string) EmptyNode {
-	return EmptyNode{
+func makeEmptyNode(path string, name string) emptyNode {
+	return emptyNode{
 		CreatePath(path, name),
 		name,
 	}

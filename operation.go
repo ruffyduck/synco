@@ -4,6 +4,7 @@ import (
 	"strings"
 )
 
+//Enum of possible file operations
 const (
 	UPDATE = iota
 	COPY
@@ -11,13 +12,13 @@ const (
 	REMOVE
 )
 
-type Operation struct {
+type operation struct {
 	Source    string
 	Target    string
 	Operation string
 }
 
-func GetOperationType(name string) int {
+func getOperationType(name string) int {
 	n := strings.ToUpper(name)
 
 	if strings.EqualFold(n, "UPDATE") {
@@ -33,5 +34,5 @@ func GetOperationType(name string) int {
 
 	}
 
-	panic("Given name is not a valid operation")
+	panic(name + " is not a valid operation")
 }

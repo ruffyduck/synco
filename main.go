@@ -3,22 +3,26 @@ package main
 import (
 	"encoding/json"
 	"flag"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"strings"
 )
 
 func main() {
-	file := flag.String("json", "", "Define multiple source folders, target"+
-		"folders and operations in single json file")
+	file := flag.String("json", "", "Specify json file that can define "+
+		"multiple source folders, target folders and operations\n"+
+		`Format: [{"source":"...", "target":"...", "operation":"..."}, ...]`)
 	source := flag.String("source", "", "Synchronisation source folder")
 	target := flag.String("target", "", "Synchronisation target folder")
-	operation := flag.String("operation", "Update", "Operation type:"+
-		"Update, Copy, Synchronize")
+	opType := flag.String("operation", "Update", "Specify operation type =>\n"+
+		"  Update: Only updates existing files (that have been modified),\n"+
+		"    Copy: Copies all files from source to target,\n"+
+		"    Sync: Like 'Copy', also deletes all outdated files in target")
 
 	flag.Parse()
 
-	operations := []Operation{}
+	operations := []operation{}
 	if len(*file) != 0 {
 		data, err := ioutil.ReadFile(*file)
 		if err != nil {
@@ -29,10 +33,16 @@ func main() {
 			log.Fatal(err)
 		}
 
-	} else if len(*source) != 0 && len(*target) != 0 &&
+	}
+
+	if len(*source) != 0 && len(*target) != 0 &&
 		!strings.EqualFold(*source, *target) {
 
-		operations = append(operations, Operation{*source, *target, *operation})
+		operations = append(operations, operation{*source, *target, *opType})
+	}
+
+	if len(operations) == 0 {
+		fmt.Println("No valid arguments given, try -help")
 	}
 
 	run(operations)

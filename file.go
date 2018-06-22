@@ -6,14 +6,14 @@ import (
 	"os"
 )
 
-type File struct {
+type file struct {
 	modTime Time
 	path    string
 	name    string
 	size    int64
 }
 
-func (f File) visit(jobs chan<- func(), operation int, ref Node) {
+func (f file) visit(jobs chan<- func(), operation int, ref node) {
 	if operation == REMOVE {
 		jobs <- func() { f.remove() }
 		return
@@ -52,7 +52,7 @@ func (f File) visit(jobs chan<- func(), operation int, ref Node) {
 	}
 }
 
-func (f File) remove() {
+func (f file) remove() {
 	path := f.getPath()
 
 	err := os.Remove(path)
@@ -61,24 +61,24 @@ func (f File) remove() {
 	}
 }
 
-func (f File) getModificationTime() Time {
+func (f file) getModificationTime() Time {
 	return f.modTime
 }
 
-func (f File) getPath() string {
+func (f file) getPath() string {
 	return f.path
 }
 
-func (f File) getName() string {
+func (f file) getName() string {
 	return f.name
 }
 
-func MakeFile(path string, info FileInfo) File {
+func makeFile(path string, info FileInfo) file {
 	if info.IsDir() {
 		log.Fatal("Given file info doesn't belongs to a file")
 	}
 
-	return File{
+	return file{
 		info.ModTime(),
 		CreatePath(path, info.Name()),
 		info.Name(),

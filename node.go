@@ -2,6 +2,7 @@ package main
 
 import (
 	"os"
+	"path"
 	"time"
 )
 
@@ -22,7 +23,6 @@ type node interface {
 
 type emptyNode struct {
 	path string
-	name string
 }
 
 func (n emptyNode) visit(jobs chan<- func(), operation int, reference node) {}
@@ -38,12 +38,11 @@ func (n emptyNode) getPath() string {
 }
 
 func (n emptyNode) getName() string {
-	return n.name
+	return path.Base(n.path)
 }
 
 func makeEmptyNode(path string, name string) emptyNode {
 	return emptyNode{
 		CreatePath(path, name),
-		name,
 	}
 }

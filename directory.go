@@ -10,7 +10,6 @@ import (
 type directory struct {
 	modTime Time
 	path    string
-	name    string
 }
 
 func (d directory) visit(jobs chan<- func(), operation int, ref node) {
@@ -77,7 +76,7 @@ func (d directory) getPath() string {
 }
 
 func (d directory) getName() string {
-	return d.name
+	return path.Base(d.path)
 }
 
 func createNode(path string, info FileInfo) node {
@@ -96,7 +95,6 @@ func makeDirectory(path string, info FileInfo) directory {
 	return directory{
 		info.ModTime(),
 		CreatePath(path, info.Name()),
-		info.Name(),
 	}
 }
 
@@ -104,6 +102,5 @@ func makeRootDirectory(dirPath string) directory {
 	return directory{
 		Time{},
 		dirPath,
-		path.Base(dirPath),
 	}
 }

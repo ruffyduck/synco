@@ -4,13 +4,12 @@ import (
 	"io"
 	"log"
 	"os"
+	"path"
 )
 
 type file struct {
 	modTime Time
 	path    string
-	name    string
-	size    int64
 }
 
 func (f file) visit(jobs chan<- func(), operation int, ref node) {
@@ -70,7 +69,7 @@ func (f file) getPath() string {
 }
 
 func (f file) getName() string {
-	return f.name
+	return path.Base(f.path)
 }
 
 func makeFile(path string, info FileInfo) file {
@@ -81,7 +80,5 @@ func makeFile(path string, info FileInfo) file {
 	return file{
 		info.ModTime(),
 		CreatePath(path, info.Name()),
-		info.Name(),
-		info.Size(),
 	}
 }
